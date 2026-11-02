@@ -1,0 +1,644 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+/* admin */
+#adminPanel{position:fixed;inset:0;z-index:999;background:var(--bg);color:var(--ink);overflow:auto;padding:20px;font-family:var(--font-body)}
+#adminPanel[hidden]{display:none}
+#adminPanel .abox{max-width:1100px;margin:0 auto}
+#adminPanel h2{font-size:1.6rem;font-weight:800;margin:0 0 14px}
+#adminPanel .abar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+#adminPanel input{padding:12px;border:2px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink);font:inherit}
+#adminPanel .tw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+#adminPanel table{width:100%;border-collapse:collapse;min-width:760px}
+#adminPanel th,#adminPanel td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;font-size:.92rem}
+#adminPanel th{background:var(--navy);color:#fff}
+#adminPanel a{color:var(--red-ink,var(--red));font-weight:700}
+#adminPanel .mut{color:var(--muted)}
+</style></head><body>
+<title>Impression India</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Courier+Prime:wght@400;700&family=Hanken+Grotesk:wght@400;500;700&display=swap">
+<style>
+/* Layout: a Kolkata travel desk. Sticky header, hero with a live departure board, navy "timetable" band for packages, plain bands for the rest. */
+:root{
+  --font-head:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --font-body:'Hanken Grotesk','Segoe UI',system-ui,sans-serif;
+  --font-mono:'Courier Prime','Courier New',ui-monospace,monospace;
+  --bg:#f3f4f8;
+  --surface:#ffffff;
+  --ink:#15163f;
+  --muted:#585b7c;
+  --line:#d8dae8;
+  --navy:#1d1f6e;
+  --on-navy:#ffffff;
+  --on-navy-muted:#bcbfe8;
+  --navy-line:rgba(255,255,255,.16);
+  --navy-row:rgba(255,255,255,.07);
+  --signal:#f5d33d;
+  --red:#d71f26;
+  --red-ink:#c4161d;
+  --on-red:#ffffff;
+  --ring:#2a2d8f;
+  --field:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d0e29;--surface:#151641;--ink:#eceefc;--muted:#a9acd2;--line:#2d2f6b;
+    --navy:#232693;--navy-line:rgba(255,255,255,.2);--red-ink:#ff6f74;--ring:#f5d33d;--field:#0d0e29;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d0e29;--surface:#151641;--ink:#eceefc;--muted:#a9acd2;--line:#2d2f6b;
+  --navy:#232693;--navy-line:rgba(255,255,255,.2);--red-ink:#ff6f74;--ring:#f5d33d;--field:#0d0e29;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:auto}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:var(--font-head);line-height:1.08;margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--ring);outline-offset:2px;border-radius:4px}
+.on-navy :focus-visible,.board :focus-visible{outline-color:var(--signal)}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+section{scroll-margin-top:124px}
+.eyebrow{font-family:var(--font-mono);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.band{padding-block:56px}
+.section-head{display:grid;gap:10px;max-width:640px;margin-bottom:32px}
+.section-head h2{font-size:clamp(1.8rem,5vw,2.6rem);font-weight:800}
+.section-head p{color:var(--muted)}
+
+/* header */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--surface);z-index:30}
+.site{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.site .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 24px;padding-block:10px}
+.brand{text-decoration:none;display:grid;gap:0;line-height:1}
+.brand-name{font-family:var(--font-mono);font-weight:700;font-size:1.3rem;letter-spacing:.03em;display:inline-flex;align-items:center}
+.slash{display:inline-block;width:7px;height:1.55em;background:var(--red);margin:0 7px;transform:skewX(-22deg);border-radius:1px}
+.brand-sub{font-family:var(--font-mono);font-size:.68rem;font-style:italic;letter-spacing:.04em;color:var(--muted);margin-top:3px}
+.nav{display:flex;gap:4px;overflow-x:auto;max-width:100%;scrollbar-width:none;align-items:center}
+.nav::-webkit-scrollbar{display:none}
+.nav a{white-space:nowrap;text-decoration:none;font-weight:500;font-size:.95rem;padding:8px 12px;border-radius:6px}
+.nav a:hover{background:var(--bg)}
+.nav a.cta{background:var(--red);color:var(--on-red);font-weight:700;margin-left:6px}
+.nav a.cta:hover{background:var(--red);filter:brightness(1.08)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:700 .98rem/1 var(--font-body);padding:14px 20px;border-radius:6px;border:2px solid transparent;cursor:pointer;text-decoration:none}
+.btn-red{background:var(--red);color:var(--on-red)}
+.btn-red:hover{filter:brightness(1.08)}
+.btn-line{background:transparent;color:var(--ink);border-color:var(--ink)}
+.btn-line:hover{background:var(--ink);color:var(--bg)}
+.btn-sm{padding:10px 14px;font-size:.88rem}
+.btn-signal{background:transparent;color:var(--signal);border-color:var(--signal)}
+.btn-signal:hover{background:var(--signal);color:#1d1f6e}
+
+/* hero */
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;padding-block:56px 64px}
+.hero h1{font-size:clamp(2.4rem,7.2vw,4.4rem);font-weight:800;margin:14px 0 18px}
+.hero h1 em{font-style:normal;color:var(--red-ink)}
+.lead{font-size:1.15rem;color:var(--muted);max-width:30em}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.hero-phones{margin-top:26px;font-family:var(--font-mono);font-size:.92rem;color:var(--muted)}
+.hero-phones b{color:var(--ink)}
+.board{background:var(--navy);color:var(--on-navy);border-radius:10px;padding:20px;min-width:0}
+.board-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px dashed var(--navy-line);padding-bottom:12px;margin-bottom:6px}
+.board-head h2{font-family:var(--font-mono);font-size:.85rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--signal)}
+.board-head span{font-family:var(--font-mono);font-size:.75rem;color:var(--on-navy-muted)}
+.mini{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--navy-line)}
+.mini:last-of-type{border-bottom:0}
+.mini .d{font-family:var(--font-mono);color:var(--signal);line-height:1.05;text-align:center}
+.mini .d b{display:block;font-size:1.7rem}
+.mini .d span{font-size:.7rem;letter-spacing:.04em;color:var(--on-navy-muted)}
+.mini h3{font-size:1.05rem;font-weight:600}
+.mini p{font-size:.82rem;color:var(--on-navy-muted)}
+.mini .c{font-family:var(--font-mono);font-weight:700;white-space:nowrap}
+.board-foot{margin-top:10px}
+.board-foot a{color:var(--signal);font-weight:700;font-size:.92rem}
+
+/* about */
+.about{background:var(--surface);border-block:1px solid var(--line)}
+.about .wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.about .copy{display:grid;gap:16px;color:var(--muted);font-size:1.05rem}
+.about .copy p strong{color:var(--ink)}
+.glossary{margin:0;display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg)}
+.glossary div{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.glossary div:last-child{border-bottom:0}
+.glossary dt{font-family:var(--font-mono);font-weight:700;color:var(--red-ink)}
+.glossary dd{margin:0;color:var(--ink);font-size:.95rem}
+.glossary-title{font-family:var(--font-mono);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+
+/* tours */
+.tours{background:var(--navy);color:var(--on-navy)}
+.tours .eyebrow,.tours .section-head p{color:var(--on-navy-muted)}
+.tours .section-head h2{color:var(--on-navy)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:18px}
+.chip{font:500 .9rem/1 var(--font-body);color:var(--on-navy);background:transparent;border:1px solid var(--navy-line);padding:10px 14px;border-radius:999px;cursor:pointer}
+.chip:hover{border-color:var(--on-navy)}
+.chip[aria-pressed="true"]{background:var(--signal);color:#1d1f6e;border-color:var(--signal);font-weight:700}
+.qchip{display:inline-flex;gap:8px;align-items:center;font-size:.9rem;padding:8px 8px 8px 14px;border-radius:999px;background:var(--navy-row);border:1px dashed var(--signal);color:var(--on-navy)}
+.qchip button{font:700 .85rem/1 var(--font-body);background:var(--signal);color:#1d1f6e;border:0;border-radius:999px;padding:6px 10px;cursor:pointer}
+.rows{display:grid;gap:8px}
+.row{display:grid;grid-template-columns:96px minmax(0,1fr) 84px 124px auto;gap:18px;align-items:center;background:var(--navy-row);border-radius:8px;padding:16px 18px}
+.row .date{font-family:var(--font-mono);color:var(--signal);line-height:1.05;text-align:center}
+.row .date b{display:block;font-size:2rem}
+.row .date span{font-size:.72rem;color:var(--on-navy-muted);letter-spacing:.03em}
+.row h3{font-size:1.2rem;font-weight:600}
+.row .route{font-size:.92rem;color:var(--on-navy-muted)}
+.row .inc{font-size:.82rem;color:var(--on-navy-muted);margin-top:4px}
+.row .inc b{color:var(--on-navy);font-weight:500}
+.row .len{font-family:var(--font-mono);font-weight:700}
+.row .cost{font-family:var(--font-mono);font-weight:700;font-size:1.2rem;line-height:1.1}
+.row .cost span{display:block;font-size:.72rem;font-weight:400;color:var(--on-navy-muted)}
+.empty{padding:28px;border:1px dashed var(--navy-line);border-radius:8px;color:var(--on-navy-muted)}
+.fineprint{margin-top:18px;font-size:.85rem;color:var(--on-navy-muted)}
+
+/* destinations */
+.dgroup{margin-bottom:34px}
+.dgroup h3{font-family:var(--font-mono);font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.dgroup h3::after{content:"";flex:1;border-top:1px dashed var(--line)}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.dcard{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:grid;gap:6px;align-content:start;min-width:0}
+.dcard h4{font-family:var(--font-head);font-size:1.3rem;font-weight:800;margin:0;line-height:1.15}
+.dcard .meta{font-size:.92rem;color:var(--muted)}
+.dcard .when{font-family:var(--font-mono);font-size:.85rem}
+.dcard button{margin-top:10px;justify-self:start}
+
+/* contact */
+.contact{background:var(--surface);border-block:1px solid var(--line)}
+.contact .wrap{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.ctable{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.crow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.crow:last-child{border-bottom:0}
+.crow .num{font-family:var(--font-mono);font-weight:700;font-size:1.15rem;user-select:all}
+.crow .lbl{font-family:var(--font-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.copy-btn{font:500 .85rem/1 var(--font-body);background:transparent;color:var(--ink);border:1px solid var(--line);padding:8px 12px;border-radius:6px;cursor:pointer}
+.copy-btn:hover{border-color:var(--ink)}
+address{font-style:normal;font-size:1.1rem;line-height:1.6}
+.contact h3{font-size:1.2rem;font-weight:800;margin-bottom:10px}
+.contact .col{display:grid;gap:14px;align-content:start;min-width:0}
+.contact .col p{color:var(--muted)}
+
+/* enquiry */
+.enquiry .wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:48px;align-items:start}
+.form{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px;display:grid;gap:16px;min-width:0}
+.field{display:grid;gap:6px}
+.field label{font-weight:700;font-size:.9rem}
+.field input,.field select,.field textarea{font:400 1rem/1.4 var(--font-body);color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:6px;padding:12px;width:100%;min-width:0}
+.field textarea{min-height:96px;resize:vertical}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.result{border:2px solid var(--red);border-radius:8px;padding:16px;display:grid;gap:12px;background:var(--bg)}
+.result h3{font-size:1.1rem;font-weight:800}
+.result textarea{font:400 .9rem/1.5 var(--font-mono);min-height:130px;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:6px;padding:10px;width:100%}
+.result .actions{margin-top:0}
+.enquiry .side{display:grid;gap:14px}
+.enquiry .side h2{font-size:clamp(1.8rem,5vw,2.6rem);font-weight:800}
+.enquiry .side p{color:var(--muted)}
+.steps{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:10px;color:var(--ink)}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
+.steps li span{font-family:var(--font-mono);font-weight:700;color:var(--red-ink)}
+
+/* footer */
+footer{background:var(--navy);color:var(--on-navy)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:20px 40px;justify-content:space-between;padding-block:32px}
+footer .brand-name{color:var(--on-navy)}
+footer .brand-sub,footer p{color:var(--on-navy-muted);font-size:.9rem}
+footer .fcol{display:grid;gap:4px;max-width:420px}
+
+@media (max-width:880px){
+  .hero .wrap,.about .wrap,.contact .wrap,.enquiry .wrap{grid-template-columns:1fr;gap:32px}
+  .row{grid-template-columns:76px minmax(0,1fr) auto;grid-template-areas:"date what cost" "date len btn";gap:8px 14px;align-items:start}
+  .row .date{grid-area:date;align-self:center}
+  .row .what{grid-area:what}
+  .row .len{grid-area:len;align-self:center}
+  .row .cost{grid-area:cost;text-align:right}
+  .row .btn{grid-area:btn;justify-self:end}
+  .band{padding-block:44px}
+}
+@media (max-width:520px){
+  .pair{grid-template-columns:1fr}
+  .glossary div{grid-template-columns:1fr;gap:2px}
+  .mini{grid-template-columns:56px 1fr auto;gap:10px}
+  .form{padding:18px}
+  .nav a{padding:8px 10px}
+}
+</style>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="#home" aria-label="Impression India, home">
+      <span class="brand-name">IMPRESSION<i class="slash"></i>INDIA</span>
+      <span class="brand-sub">Travel Agent &amp; Tour Consultant</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#home">Home</a>
+      <a href="#about">About us</a>
+      <a href="#tours">Tour packages</a>
+      <a href="#destinations">Destinations</a>
+      <a href="#contact">Contact us</a>
+      <a class="cta" href="#enquiry">Enquiry</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section id="home" class="hero">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Baghbazar, Kolkata &middot; Fixed departures 2026 &amp; 2027</p>
+      <h1>Pick a date. <em>We handle the trip.</em></h1>
+      <p class="lead">Group tours from Kolkata on fixed dates, from a 3-day break to a 16-day Himalayan circuit. Stay, meals and main transport are included in every package.</p>
+      <div class="actions">
+        <a class="btn btn-red" href="#tours">See all departures</a>
+        <a class="btn btn-line" href="#enquiry">Send an enquiry</a>
+      </div>
+      <p class="hero-phones">Call <b>86172 18683</b> &middot; <b>98313 92716</b> &middot; <b>98301 14791</b></p>
+    </div>
+    <div class="board" aria-labelledby="nextTitle">
+      <div class="board-head"><h2 id="nextTitle">Next departures</h2><span id="todayLabel"></span></div>
+      <div id="miniBoard"></div>
+      <p class="board-foot"><a href="#tours">All departures &rarr;</a></p>
+    </div>
+  </div>
+</section>
+
+<section id="about" class="about band">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">About us</p>
+      <div class="section-head" style="margin-top:10px;margin-bottom:20px"><h2>A Kolkata travel desk for fixed-date group tours</h2></div>
+      <div class="copy">
+        <p><strong>Impression India</strong> is a travel agent and tour consultant at Bose Para Lane, Baghbazar. We run fixed departure tours, so the date, route and price are set before you book.</p>
+        <p>Every package states what it covers: stay, meals and main transport, with sleeper train tickets added on selected tours. You see the per-person cost up front.</p>
+        <p>Not sure which tour suits your leave dates or your group? Call us and we will help you choose.</p>
+      </div>
+    </div>
+    <div>
+      <p class="glossary-title">How to read a package</p>
+      <dl class="glossary">
+        <div><dt>6N / 7D</dt><dd>Nights and days. 6N / 7D means six nights and seven days.</dd></div>
+        <div><dt>Per Pax</dt><dd>Cost per person.</dd></div>
+        <div><dt>MAP</dt><dd>Meal plan with breakfast and dinner.</dd></div>
+        <div><dt>SL train</dt><dd>Sleeper class train ticket, included on selected tours.</dd></div>
+        <div><dt>Kol to Kol</dt><dd>The tour starts and ends in Kolkata. Some start elsewhere, such as Port Blair or Srinagar.</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section id="tours" class="tours band on-navy">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Tour packages</p>
+      <h2>Departure board</h2>
+      <p>Every fixed departure, soonest first. Tap Enquire on any row and the form fills in the tour for you.</p>
+    </div>
+    <div class="filters" id="filters" role="group" aria-label="Filter by length"></div>
+    <div class="rows" id="rows"></div>
+    <p class="fineprint">Prices are per person as listed. Please confirm dates and inclusions when you book.</p>
+  </div>
+</section>
+
+<section id="destinations" class="band">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Destinations</p>
+      <h2>Where we are going</h2>
+      <p>Mountains, islands, forests and short breaks near home. Choose See dates to jump to that destination's departures.</p>
+    </div>
+    <div id="destList"></div>
+  </div>
+</section>
+
+<section id="contact" class="contact band">
+  <div class="wrap">
+    <div class="col">
+      <p class="eyebrow">Contact us</p>
+      <h2 style="font-size:clamp(1.8rem,5vw,2.6rem);font-weight:800">Talk to the desk</h2>
+      <p>Call during the day to check seats, dates or what is included. You can also visit the office in Baghbazar.</p>
+      <div>
+        <h3>Office</h3>
+        <address>Impression India<br>33/1B, Bose Para Lane<br>Baghbazar, Kolkata &ndash; 700003</address>
+      </div>
+    </div>
+    <div class="col">
+      <h3>Phone</h3>
+      <div class="ctable">
+        <div class="crow"><div><div class="lbl">Mobile</div><a class="num" href="tel:+919830114791">98301 14791</a></div><button class="copy-btn" data-copy="9830114791" type="button">Copy</button></div>
+        <div class="crow"><div><div class="lbl">Mobile</div><a class="num" href="tel:+918617218683">86172 18683</a></div><button class="copy-btn" data-copy="8617218683" type="button">Copy</button></div>
+        <div class="crow"><div><div class="lbl">Mobile</div><a class="num" href="tel:+919831392716">98313 92716</a></div><button class="copy-btn" data-copy="9831392716" type="button">Copy</button></div>
+      </div>
+      <p>Prefer to write? Use the <a href="#enquiry"><b>enquiry form</b></a> and send it on WhatsApp.</p>
+    </div>
+  </div>
+</section>
+
+<section id="enquiry" class="enquiry band">
+  <div class="wrap">
+    <div class="side">
+      <p class="eyebrow">Enquiry form</p>
+      <h2>Tell us what you are planning</h2>
+      <p>Fill in a few details and we turn them into a ready message for the Impression India desk.</p>
+      <ol class="steps">
+        <li><span>1</span><div>Choose a tour, or ask us to suggest one.</div></li>
+        <li><span>2</span><div>Add your name, phone number and group size.</div></li>
+        <li><span>3</span><div>Send the message on WhatsApp. We reply with availability.</div></li>
+      </ol>
+    </div>
+    <div>
+      <form class="form" id="enqForm" novalidate>
+        <div class="field">
+          <label for="f-tour">Tour</label>
+          <select id="f-tour" name="tour"></select>
+        </div>
+        <div class="pair">
+          <div class="field"><label for="f-name">Your name</label><input id="f-name" name="name" type="text" autocomplete="name" required></div>
+          <div class="field"><label for="f-phone">Phone number</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="98xxx xxxxx" required></div>
+        </div>
+        <div class="pair">
+          <div class="field"><label for="f-pax">Travellers</label><input id="f-pax" name="pax" type="number" min="1" max="60" value="2"></div>
+          <div class="field"><label for="f-month">Preferred month (optional)</label><input id="f-month" name="month" type="text" placeholder="e.g. March 2027"></div>
+        </div>
+        <div class="field"><label for="f-note">Message (optional)</label><textarea id="f-note" name="note" placeholder="Group details, hotel preferences, questions"></textarea></div>
+        <p id="formErr" role="alert" style="color:var(--red-ink);font-weight:700" hidden></p>
+        <button class="btn btn-red" type="submit">Prepare my enquiry</button>
+      </form>
+      <div class="result" id="result" hidden style="margin-top:16px">
+        <h3>Thank you, your enquiry is submitted</h3>
+        <p style="color:var(--muted)">Your enquiry has been received by our desk. You can also send it on WhatsApp for a faster reply.</p>
+        <textarea id="msgOut" readonly aria-label="Your enquiry message"></textarea>
+        <div class="actions">
+          <a class="btn btn-red" id="waLink" href="#" target="_blank" rel="noopener">Send on WhatsApp</a>
+          <button class="btn btn-line" id="copyMsg" type="button">Copy message</button>
+        </div>
+        <p id="copyNote" style="font-size:.9rem;color:var(--muted)" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fcol">
+      <span class="brand-name">IMPRESSION<i class="slash"></i>INDIA</span>
+      <span class="brand-sub">Travel Agent &amp; Tour Consultant</span>
+    </div>
+    <div class="fcol">
+      <p>33/1B, Bose Para Lane, Baghbazar, Kolkata &ndash; 700003</p>
+      <p>98301 14791 &middot; 86172 18683 &middot; 98313 92716</p>
+    </div>
+  </div>
+</footer>
+
+
+<div id="adminPanel" hidden>
+  <div class="abox">
+    <div id="aLogin">
+      <h2>Admin login</h2>
+      <div class="abar"><input id="aPass" type="password" placeholder="Password"><button class="btn btn-red btn-sm" id="aGo" type="button">Login</button><a href="#home" id="aClose0">Close</a></div>
+      <p id="aErr" style="color:var(--red-ink)" hidden>Wrong password.</p>
+    </div>
+    <div id="aMain" hidden>
+      <h2>Enquiries <span class="mut" id="aCount"></span></h2>
+      <div class="abar">
+        <button class="btn btn-red btn-sm" id="aRef" type="button">Refresh</button>
+        <button class="btn btn-line btn-sm" id="aCsv" type="button">Download CSV</button>
+        <button class="btn btn-line btn-sm" id="aOut" type="button">Logout</button>
+        <a href="#home">Back to site</a>
+      </div>
+      <div class="tw"><table><thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>Tour</th><th>Pax</th><th>Month</th><th>Message</th><th></th></tr></thead><tbody id="aRows"></tbody></table></div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  /* ===== SETTINGS ===== */
+  var API_URL = 'https://YOUR-BACKEND.onrender.com';   // Render backend URL (no trailing slash)
+  /* ==================== */
+  var WA_NUMBER = '918617218683';
+  var BASE = ['Stay','Meals','Main transport'];
+  var MAPM = ['Stay','Meals (MAP)','Main transport'];
+  var SL = ['Stay','Meals','Main transport','SL train ticket'];
+  var TOURS = [
+    {id:'bardi',name:'Bardi Pahar',dest:'Bardi Pahar',route:'Kolkata to Kolkata',n:2,d:3,price:9800,key:'2026-11-13',until:'2026-11-13',big:'13',small:'Nov 2026',inc:BASE},
+    {id:'ranchi',name:'Ranchi & Netarhat',dest:'Ranchi & Netarhat',route:'Kolkata to Kolkata',n:4,d:5,price:11250,key:'2026-11-19',until:'2026-11-19',big:'19',small:'Nov 2026',inc:BASE},
+    {id:'ajodhya',name:'Ajodhya Pahar & Baranti',dest:'Ajodhya Pahar & Baranti',route:'Kolkata to Kolkata',n:4,d:5,price:8500,key:'2026-11-20',until:'2026-11-20',big:'20',small:'Nov 2026',inc:BASE},
+    {id:'andaman',name:'Andaman',dest:'Andaman',route:'Port Blair to Port Blair',n:7,d:8,price:25200,key:'2026-12-06',until:'2027-01-31',big:'Sun',small:'Every Sunday, Dec & Jan',inc:BASE},
+    {id:'kerala14',name:'Kerala',dest:'Kerala',route:'Kolkata to Kolkata',n:13,d:14,price:27500,key:'2026-12-20',until:'2026-12-20',big:'20',small:'Dec 2026',inc:BASE},
+    {id:'kerala13',name:'Kerala',dest:'Kerala',route:'Kolkata to Kolkata',n:12,d:13,price:27000,key:'2026-12-25',until:'2026-12-25',big:'25',small:'Dec 2026',inc:BASE},
+    {id:'lataguri',name:'Lataguri & Lungchu',dest:'Lataguri & Lungchu',route:'Kolkata to Kolkata',n:4,d:5,price:10600,key:'2027-01-22',until:'2027-01-22',big:'22',small:'Jan 2027',inc:SL},
+    {id:'jhargram',name:'Jhargram – Belpahari',dest:'Jhargram – Belpahari',route:'Kolkata to Kolkata',n:2,d:3,price:7500,key:'2027-01-23',until:'2027-01-23',big:'23',small:'Jan 2027',inc:BASE},
+    {id:'winterk',name:'Winter Kashmir',dest:'Kashmir',route:'Kolkata to Kolkata',n:9,d:10,price:17000,key:'2027-02-12',until:'2027-02-12',big:'12',small:'Feb 2027',inc:SL},
+    {id:'tiger',name:'Tiger Trail',dest:'Tiger Trail',route:'Kolkata to Kolkata',n:7,d:8,price:38250,key:'2027-03-07',until:'2027-03-07',big:'07',small:'Mar 2027',inc:BASE},
+    {id:'kmarch',name:'Kashmir in March',dest:'Kashmir',route:'Kolkata to Kolkata',n:12,d:13,price:28500,key:'2027-03-18',until:'2027-03-18',big:'18',small:'Mar 2027',inc:SL},
+    {id:'arunachal',name:'Offbeat Arunachal',dest:'Arunachal',route:'Dibrugarh to Dibrugarh',n:9,d:10,price:35500,key:'2027-03-19',until:'2027-03-19',big:'19',small:'Mar 2027',inc:MAPM},
+    {id:'shanti',name:'Shantiniketan (Basanta Utsav)',dest:'Shantiniketan',route:'Kolkata to Kolkata',n:2,d:3,price:9500,key:'2027-03-21',until:'2027-03-21',big:'21',small:'Mar 2027',inc:BASE},
+    {id:'tulip',name:'Kashmir (Tulip Special)',dest:'Kashmir',route:'Kolkata to Kolkata',n:11,d:12,price:29500,key:'2027-04-08',until:'2027-04-08',big:'08',small:'Apr 2027',inc:BASE},
+    {id:'kailash',name:'Adi Kailash Yatra',dest:'Adi Kailash',route:'Kolkata to Kolkata',n:9,d:10,price:35500,key:'2027-05-07',until:'2027-05-07',big:'07',small:'May 2027',inc:BASE},
+    {id:'spiti',name:'Lahaul – Spiti',dest:'Lahaul – Spiti',route:'Kolkata to Kolkata',n:15,d:16,price:34500,key:'2027-05-28',until:'2027-05-28',big:'28',small:'May 2027',inc:SL},
+    {id:'ladakh',name:'Round the Ladakh',dest:'Ladakh',route:'Srinagar to Chandigarh',n:14,d:15,price:46500,key:'2027-06-04',until:'2027-06-04',big:'04',small:'Jun 2027',inc:MAPM}
+  ];
+  var GROUPS = [
+    {title:'Mountains',items:['Kashmir','Ladakh','Lahaul – Spiti','Arunachal','Adi Kailash']},
+    {title:'Islands, coast and forest',items:['Andaman','Kerala','Tiger Trail']},
+    {title:'Short breaks from Kolkata',items:['Bardi Pahar','Ranchi & Netarhat','Ajodhya Pahar & Baranti','Lataguri & Lungchu','Jhargram – Belpahari','Shantiniketan']}
+  ];
+  var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  var now = new Date();
+  var todayKey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  var live = TOURS.filter(function(t){return t.until >= todayKey;});
+  if(!live.length) live = TOURS.slice();
+  live.sort(function(a,b){return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;});
+
+  function money(n){return '₹'+n.toLocaleString('en-IN');}
+  function dur(t){return t.n+'N / '+t.d+'D';}
+  function mLabel(k){var p=k.split('-');return {m:MONTHS[+p[1]-1],y:p[0]};}
+  function range(list){
+    var a=mLabel(list[0].key), b=mLabel(list[list.length-1].until);
+    if(a.m===b.m && a.y===b.y) return a.m+' '+a.y;
+    if(a.y===b.y) return a.m+' – '+b.m+' '+a.y;
+    return a.m+' '+a.y+' – '+b.m+' '+b.y;
+  }
+  function $(id){return document.getElementById(id);}
+  function incHtml(t){return t.inc.map(function(x){return '<b>'+x+'</b>';}).join(' · ');}
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+
+  $('todayLabel').textContent = now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
+
+  /* hero board */
+  $('miniBoard').innerHTML = live.slice(0,4).map(function(t){
+    return '<div class="mini"><div class="d"><b>'+t.big+'</b><span>'+(t.big==='Sun'?'Dec–Jan':t.small)+'</span></div>'+
+      '<div><h3>'+esc(t.name)+'</h3><p>'+dur(t)+' · '+t.route.replace(' to ',' → ')+'</p></div>'+
+      '<div class="c">'+money(t.price)+'</div></div>';
+  }).join('');
+
+  /* tour list */
+  var LENS = [
+    {id:'all',label:'All',test:function(){return true;}},
+    {id:'short',label:'Up to 5 days',test:function(t){return t.d<=5;}},
+    {id:'mid',label:'6 to 10 days',test:function(t){return t.d>=6&&t.d<=10;}},
+    {id:'long',label:'11 days or more',test:function(t){return t.d>=11;}}
+  ];
+  var state={len:'all',dest:null};
+  function renderFilters(){
+    var h=LENS.map(function(l){
+      var c=live.filter(l.test).length;
+      return '<button type="button" class="chip" data-len="'+l.id+'" aria-pressed="'+(state.len===l.id)+'">'+l.label+' ('+c+')</button>';
+    }).join('');
+    if(state.dest) h+='<span class="qchip">Showing '+esc(state.dest)+' <button type="button" data-clear="1">Clear</button></span>';
+    $('filters').innerHTML=h;
+  }
+  function renderRows(){
+    var lens=LENS.filter(function(l){return l.id===state.len;})[0];
+    var list=live.filter(function(t){return lens.test(t) && (!state.dest || t.dest===state.dest);});
+    if(!list.length){$('rows').innerHTML='<div class="empty">No departures match this filter. Try another length or clear the destination.</div>';return;}
+    $('rows').innerHTML=list.map(function(t){
+      return '<article class="row">'+
+        '<div class="date"><b>'+t.big+'</b><span>'+t.small+'</span></div>'+
+        '<div class="what"><h3>'+esc(t.name)+'</h3><p class="route">'+t.route+'</p><p class="inc">Includes: '+incHtml(t)+'</p></div>'+
+        '<div class="len">'+dur(t)+'</div>'+
+        '<div class="cost">'+money(t.price)+'<span>per person</span></div>'+
+        '<button type="button" class="btn btn-signal btn-sm" data-enq="'+t.id+'">Enquire</button></article>';
+    }).join('');
+  }
+  function renderAll(){renderFilters();renderRows();}
+  renderAll();
+
+  /* destinations */
+  $('destList').innerHTML = GROUPS.map(function(g){
+    var cards=g.items.map(function(name){
+      var list=live.filter(function(t){return t.dest===name;});
+      if(!list.length) return '';
+      var min=Math.min.apply(null,list.map(function(t){return t.price;}));
+      var nights=list.map(function(t){return t.d;});
+      var lo=Math.min.apply(null,nights), hi=Math.max.apply(null,nights);
+      var days = lo===hi ? lo+' days' : lo+' to '+hi+' days';
+      return '<div class="dcard"><h4>'+esc(name)+'</h4>'+
+        '<p class="meta">'+list.length+' departure'+(list.length>1?'s':'')+' · '+days+'</p>'+
+        '<p class="when">'+range(list)+'</p>'+
+        '<p class="meta">From '+money(min)+' per person</p>'+
+        '<button type="button" class="btn btn-line btn-sm" data-dest="'+esc(name)+'">See dates</button></div>';
+    }).join('');
+    return cards ? '<div class="dgroup"><h3>'+g.title+'</h3><div class="dgrid">'+cards+'</div></div>' : '';
+  }).join('');
+
+  /* enquiry select */
+  var sel=$('f-tour');
+  sel.innerHTML='<option value="">Not sure yet. Suggest something for me</option>'+live.map(function(t){
+    return '<option value="'+t.id+'">'+esc(t.name)+' · '+(t.big==='Sun'?'Every Sunday, Dec & Jan':t.big+' '+t.small)+' · '+dur(t)+'</option>';
+  }).join('');
+
+  /* clicks */
+  document.addEventListener('click',function(e){
+    var el=e.target.closest('[data-len],[data-clear],[data-dest],[data-enq],[data-copy]');
+    if(!el) return;
+    if(el.hasAttribute('data-len')){state.len=el.getAttribute('data-len');renderAll();return;}
+    if(el.hasAttribute('data-clear')){state.dest=null;renderAll();return;}
+    if(el.hasAttribute('data-dest')){
+      state.dest=el.getAttribute('data-dest');state.len='all';renderAll();
+      $('tours').scrollIntoView({block:'start'});return;
+    }
+    if(el.hasAttribute('data-enq')){
+      sel.value=el.getAttribute('data-enq');
+      $('enquiry').scrollIntoView({block:'start'});
+      setTimeout(function(){$('f-name').focus({preventScroll:true});},350);return;
+    }
+    if(el.hasAttribute('data-copy')){
+      var num=el.getAttribute('data-copy'), btn=el;
+      var done=function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy';},1600);};
+      var fallback=function(){
+        var n=btn.parentNode.querySelector('.num');
+        var r=document.createRange();r.selectNodeContents(n);
+        var s=window.getSelection();s.removeAllRanges();s.addRange(r);
+        btn.textContent='Selected';setTimeout(function(){btn.textContent='Copy';},1600);
+      };
+      try{navigator.clipboard.writeText(num).then(done,fallback);}catch(_){fallback();}
+    }
+  });
+
+
+  /* ===== enquiry storage + admin ===== */
+  function tok(){return sessionStorage.getItem('ii_token')||'';}
+  function saveEnq(rec){
+    return fetch(API_URL+'/api/enquiries',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}).catch(function(){});
+  }
+  function loadEnq(){
+    return fetch(API_URL+'/api/enquiries',{headers:{Authorization:'Bearer '+tok()}}).then(function(r){
+      if(r.status===401){sessionStorage.removeItem('ii_token');route();throw new Error('auth');}
+      return r.json();
+    });
+  }
+  function delEnq(id){
+    return fetch(API_URL+'/api/enquiries/'+encodeURIComponent(id),{method:'DELETE',headers:{Authorization:'Bearer '+tok()}});
+  }
+  var cache=[];
+  function renderAdmin(){
+    loadEnq().then(function(list){
+      cache=list.sort(function(a,b){return (b.ts||0)-(a.ts||0);});
+      $('aCount').textContent='('+cache.length+')';
+      $('aRows').innerHTML=cache.length?cache.map(function(x){
+        return '<tr><td>'+esc(new Date(x.ts).toLocaleString('en-IN'))+'</td><td><b>'+esc(x.name)+'</b></td><td><a href="tel:'+esc(x.phone)+'">'+esc(x.phone)+'</a></td><td>'+esc(x.tour)+'</td><td>'+esc(String(x.pax))+'</td><td>'+esc(x.month||'')+'</td><td>'+esc(x.note||'')+'</td><td><a href="#admin" data-del="'+esc(x.id)+'">Delete</a></td></tr>';
+      }).join(''):'<tr><td colspan="8" class="mut">No enquiries yet.</td></tr>';
+    }).catch(function(){$('aRows').innerHTML='<tr><td colspan="8">Could not load enquiries. Check API_URL / backend.</td></tr>';});
+  }
+  function route(){
+    var on=location.hash==='#admin';
+    $('adminPanel').hidden=!on;
+    if(on){var ok=!!tok();$('aLogin').hidden=ok;$('aMain').hidden=!ok;if(ok)renderAdmin();}
+  }
+  window.addEventListener('hashchange',route);route();
+  $('aGo').addEventListener('click',function(){
+    fetch(API_URL+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('aPass').value})})
+      .then(function(r){return r.ok?r.json():Promise.reject();})
+      .then(function(d){sessionStorage.setItem('ii_token',d.token);$('aPass').value='';$('aErr').hidden=true;route();})
+      .catch(function(){$('aErr').hidden=false;});
+  });
+  $('aPass').addEventListener('keydown',function(e){if(e.key==='Enter')$('aGo').click();});
+  $('aOut').addEventListener('click',function(){sessionStorage.removeItem('ii_token');route();});
+  $('aRef').addEventListener('click',renderAdmin);
+  $('aRows').addEventListener('click',function(e){
+    var id=e.target.getAttribute&&e.target.getAttribute('data-del');if(!id)return;e.preventDefault();
+    if(confirm('Delete this enquiry?'))delEnq(id).then(renderAdmin);
+  });
+  $('aCsv').addEventListener('click',function(){
+    var q=function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';};
+    var rows=[['Date','Name','Phone','Tour','Travellers','Month','Message']].concat(cache.map(function(x){return [new Date(x.ts).toLocaleString('en-IN'),x.name,x.phone,x.tour,x.pax,x.month,x.note];}));
+    var b=new Blob([rows.map(function(r){return r.map(q).join(',');}).join('\n')],{type:'text/csv'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='enquiries.csv';a.click();
+  });
+
+  /* form */
+  $('enqForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var err=$('formErr');
+    var name=$('f-name').value.trim(), phone=$('f-phone').value.trim();
+    var digits=phone.replace(/\D/g,'');
+    if(!name){err.textContent='Please enter your name.';err.hidden=false;$('f-name').focus();return;}
+    if(digits.length<10){err.textContent='Please enter a phone number with at least 10 digits.';err.hidden=false;$('f-phone').focus();return;}
+    err.hidden=true;
+    var tour=live.filter(function(t){return t.id===sel.value;})[0];
+    var lines=['Hello Impression India,','I would like to enquire about: '+(tour ? tour.name+' ('+(tour.big==='Sun'?'every Sunday, Dec & Jan':tour.big+' '+tour.small)+', '+dur(tour)+', '+money(tour.price)+' per person)' : 'a tour. Please suggest options.')];
+    lines.push('Name: '+name,'Phone: '+phone,'Travellers: '+($('f-pax').value||'1'));
+    var m=$('f-month').value.trim(); if(m) lines.push('Preferred month: '+m);
+    var n=$('f-note').value.trim(); if(n) lines.push('Message: '+n);
+    var msg=lines.join('\n');
+    saveEnq({ts:Date.now(),name:name,phone:phone,tour:tour?tour.name+' ('+(tour.big==='Sun'?'every Sunday':tour.big+' '+tour.small)+')':'Not sure / suggest',pax:$('f-pax').value||'1',month:m,note:n});
+    $('msgOut').value=msg;
+    $('waLink').href='https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg);
+    $('copyNote').textContent='';
+    $('result').hidden=false;
+    $('result').scrollIntoView({block:'nearest'});
+  });
+  $('copyMsg').addEventListener('click',function(){
+    var ta=$('msgOut'), note=$('copyNote');
+    var fb=function(){ta.focus();ta.select();note.textContent='Message selected. Copy it with your keyboard or long-press.';};
+    try{navigator.clipboard.writeText(ta.value).then(function(){note.textContent='Message copied.';},fb);}catch(_){fb();}
+  });
+})();
+</script>
+
+</body></html>
